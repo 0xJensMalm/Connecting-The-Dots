@@ -4,13 +4,15 @@ const sketchConfig = {
   gridColor: [0, 255, 255],
   pointGridSize: 0.4,
   vertexDistanceThreshold: 10,
+  modelRotation: { x: 90, y: 0, z: 100 }, // Rotation angles in degrees
+  // x180 y180 z0
 };
 
 const particleConfig = {
-  numParticles: 50,
+  numParticles: 200,
   size: 0.5,
-  lineStrokeSize: 0.5,
-  linesEnabled: true,
+  lineStrokeSize: 0.2,
+  linesEnabled: false,
   lineLifespan: 200,
   pathLength: 30, //distance threshold to next target
   particleSpeed: 1,
@@ -27,7 +29,7 @@ let filteredVertices = [];
 let zoom = sketchConfig.zoom.initial;
 
 function preload() {
-  myModel = loadModel("face.obj", true);
+  myModel = loadModel("fly.obj", true);
 }
 
 function setup() {
@@ -44,9 +46,13 @@ function setup() {
 function draw() {
   background(0);
   orbitControl();
-  rotateX(PI);
-  rotateY(PI);
   scale(zoom);
+
+  // Apply rotation around X, Y, and Z axes
+  rotateX(radians(sketchConfig.modelRotation.x));
+  rotateY(radians(sketchConfig.modelRotation.y));
+  rotateZ(radians(sketchConfig.modelRotation.z));
+
   displayVertices();
   updateAndDisplayParticles();
 }
