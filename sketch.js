@@ -1,21 +1,21 @@
 const sketchConfig = {
   canvasSize: { width: 800, height: 800 },
-  zoom: { min: 0.5, max: 5, initial: 2.5, sensitivity: 1000 },
+  zoom: { min: 0.5, max: 5, initial: 3.1, sensitivity: 1000 },
   gridColor: [204, 255, 51],
-  pointGridSize: 0.4,
-  vertexDistanceThreshold: 10,
+  pointGridSize: 2,
+  vertexDistanceThreshold: 6, //less is more
   modelRotation: { x: 90, y: 0, z: 100 }, // Rotation angles in degrees
-  autoRotation: 10,
+  autoRotation: 15,
   // face: x: 180 y: 180 z: 0
   // fly: x: 90, y: 0, z: 100
 };
 
 const particleConfig = {
-  numParticles: 2500,
-  size: 0.5,
+  numParticles: 1000,
+  size: 2.5,
   lineStrokeSize: 0.2,
   linesEnabled: false,
-  lineLifespan: 500,
+  lineLifespan: 50,
   pathLength: 30, //distance threshold to next target
   particleSpeed: 1,
   /*colors: [
@@ -92,14 +92,16 @@ function initializeParticles() {
 }
 
 function displayVertices() {
-  noStroke();
-  fill(sketchConfig.gridColor);
+  // Use the RGB values from gridColor for the stroke color
+  stroke(...sketchConfig.gridColor); // Spread operator to unpack the array
+  strokeWeight(sketchConfig.pointGridSize); // Use pointGridSize for stroke weight, which controls point size
+
+  // Draw each vertex as a point
+  beginShape(POINTS);
   filteredVertices.forEach((v) => {
-    push();
-    translate(v.x, v.y, v.z);
-    sphere(sketchConfig.pointGridSize); // Use pointGridSize for sphere size
-    pop();
+    vertex(v.x, v.y, v.z);
   });
+  endShape();
 }
 
 function updateAndDisplayParticles() {
@@ -153,23 +155,35 @@ class Particle {
     if (particleConfig.linesEnabled && this.trail.length > 1) {
       beginShape();
       noFill();
-      stroke(this.color);
+      stroke(this.color); // Use the particle's color for the trail
       strokeWeight(particleConfig.lineStrokeSize);
-      this.trail.forEach((p) => vertex(p.x, p.y, p.z));
+      this.trail.forEach((p) => {
+        vertex(p.x, p.y, p.z);
+      });
       endShape();
     }
 
-    // Display the particle as a sphere
-    push();
-    translate(this.pos.x, this.pos.y, this.pos.z);
-    fill(this.color);
-    sphere(particleConfig.size);
-    pop();
+    // Display the particle as a point
+    stroke(this.color); // Set the color of the point
+    strokeWeight(particleConfig.size); // Set the size of the point
+    point(this.pos.x, this.pos.y, this.pos.z); // Draw the point at the particle's position
   }
 
   isOutOfBound() {
     const center = createVector(0, 0, 0); // Assuming the center of the grid is at (0, 0, 0)
     const maxDistance = 300; // Maximum allowed distance from the center
     return this.pos.dist(center) > maxDistance;
+  }
+}
+function keyPressed() {
+  if (key === "s" || key === "S") {
+    // This will save a 5-second GIF, starting 1 second after pressing 's'.
+    // The GIF will be named 'mySketch.gif'.
+    // It will show progress notifications that won't auto-dismiss.
+    saveGif("mySketch", 10, {
+      delay: 1,
+      silent: false,
+      notificationDuration: 0,
+    });
   }
 }
