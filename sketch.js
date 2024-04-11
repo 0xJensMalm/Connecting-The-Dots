@@ -5,13 +5,13 @@ const sketchConfig = {
   pointGridSize: 2,
   vertexDistanceThreshold: 6, //less is more
   modelRotation: { x: 90, y: 0, z: 100 }, // Rotation angles in degrees
-  autoRotation: 15,
+  autoRotation: 10,
   // face: x: 180 y: 180 z: 0
   // fly: x: 90, y: 0, z: 100
 };
 
 const particleConfig = {
-  numParticles: 1000,
+  numParticles: 500,
   size: 2.5,
   lineStrokeSize: 0.2,
   linesEnabled: false,
@@ -41,11 +41,17 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(
-    sketchConfig.canvasSize.width,
-    sketchConfig.canvasSize.height,
-    WEBGL
-  );
+  // Subtract some value if you want margins around the canvas
+  const canvasWidth = windowWidth - 20; // 20 pixels margin for example
+  const canvasHeight = windowHeight - 20; // 20 pixels margin
+  createCanvas(canvasWidth, canvasHeight, WEBGL);
+
+  // Adjust zoom and other settings based on canvas size
+  zoom =
+    sketchConfig.zoom.initial * (canvasWidth / sketchConfig.canvasSize.width);
+  sketchConfig.pointGridSize =
+    0.4 * (canvasWidth / sketchConfig.canvasSize.width);
+
   colorMode(RGB);
   filterVertices(myModel.vertices);
   initializeParticles();
@@ -115,7 +121,6 @@ function mouseWheel(event) {
   zoom -= event.delta / sketchConfig.zoom.sensitivity;
   zoom = constrain(zoom, sketchConfig.zoom.min, sketchConfig.zoom.max);
 }
-
 class Particle {
   constructor(initialPos, color) {
     this.pos = createVector(initialPos.x, initialPos.y, initialPos.z);
@@ -186,4 +191,18 @@ function keyPressed() {
       notificationDuration: 0,
     });
   }
+}
+
+function windowResized() {
+  const canvasWidth = windowWidth - 20;
+  const canvasHeight = windowHeight - 20;
+  resizeCanvas(canvasWidth, canvasHeight);
+
+  // Re-adjust zoom and other settings after resizing
+  zoom =
+    sketchConfig.zoom.initial * (canvasWidth / sketchConfig.canvasSize.width);
+  sketchConfig.pointGridSize =
+    0.4 * (canvasWidth / sketchConfig.canvasSize.width);
+
+  // You might need to re-initialize or adjust other elements of your sketch here
 }
